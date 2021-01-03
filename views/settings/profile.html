@@ -1,0 +1,101 @@
+{{extend '../_layouts/home.html'}}
+
+{{block 'title'}}{{'多人博客 - 首页'}}{{/block}}
+<link rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.css">
+
+{{block 'body'}}
+<section class="container">
+  {{include '../_partials/settings-nav.html'}}
+  <div class="col-md-5">
+    <form id="profile_form">
+      <div class="form-group">
+        <label for="exampleInputEmail1">账号</label>
+        <p class="form-control-static">{{ user.email }}</p>
+      </div>
+      <div class="form-group">
+        <label for="exampleInputPassword1">昵称</label>
+        <input type="text" class="form-control" name="nickname" value="{{ user.nickname }}">
+      </div>
+      <div class="form-group">
+        <label for="exampleInputPassword1">介绍</label>
+        <textarea class="form-control" rows="3" name="bio">{{ user.bio }}</textarea>
+      </div>
+      <div class="form-group">
+        <label for="exampleInputPassword1">性别</label>
+        <div id="gender">
+          <label class="radio-inline">
+            <input type="radio" name="gender" id="inlineRadio1" value="0"> 男
+          </label>
+          <label class="radio-inline">
+            <input type="radio" name="gender" id="inlineRadio2" value="1"> 女
+          </label>
+          <label class="radio-inline">
+            <input type="radio" name="gender" id="inlineRadio3" value="-1"> 保密
+          </label>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="exampleInputPassword1">生日</label>
+        <div class="row">
+          <div class='col-sm-6'>
+              <div class="form-group">
+                  <!--指定 date标记-->
+                  <div class='input-group date' id='date_picker'>
+                      <input type='text' class="form-control" name="birthday" value="{{ user.birthday }}"/>
+                      <span class="input-group-addon">
+                          <span class="glyphicon glyphicon-calendar"></span>
+                      </span>
+                  </div>
+              </div>
+          </div>
+      </div>
+      
+      </div>
+      <button type="submit" class="btn btn-success">保存</button>
+    </form>
+  </div>
+  <div class="col-md-2 profile-avatar">
+    <dl>
+      <dt>头像设置</dt>
+      <dd>
+        <img class="avatar" width="150" height="150" src="../public/img/avatar-default.png" alt="用户头像">
+        <div>
+          <button class="btn btn-default" href="">Upload new picture</button>
+        </div>
+      </dd>
+    </dl>
+  </div>
+</section>
+<script src="/node_modules/jquery/dist/jquery.js"></script>
+
+<script>
+  let aRadio = $('#gender input');
+    for (let i=0; i<aRadio.length; i++) {
+      if (aRadio[i].getAttribute('value') == '{{ user.gender }}') {
+        aRadio[i].setAttribute('checked', true);
+      }
+    }
+
+  $('#profile_form').on('submit', function(e) {
+    e.preventDefault();
+    var formData = $(this).serialize();
+    $.ajax({
+        url: '/settings/profile',
+        type: 'post',
+        data: formData,
+        dataType: 'json',
+        success: function (data) {
+          var err_code = data.err_code
+          if (err_code === 0) {
+            // window.alert('注册成功！')
+            // 服务端重定向针对异步请求无效
+            window.alert('更新成功');
+            window.location.href = '/settings/profile'
+          } else if (err_code === 500) {
+            window.alert('服务器忙，请稍后重试！')
+          }
+        }
+      })
+  });
+</script>
+{{/block}}

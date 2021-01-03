@@ -1,0 +1,86 @@
+{{extend '../_layouts/home.html'}}
+
+{{block 'title'}}{{'多人博客 - 首页'}}{{/block}}
+
+<!-- {{block 'head'}}
+<link rel="stylesheet" href="/public/css/markdown-github.css">
+<style>
+  .panel .panel-heading .action i {
+    margin-right: 10px;
+  }
+</style>
+{{/block}} -->
+
+{{block 'body'}}
+<section class="container">
+  <div class="row">
+    <div class="col-md-9">
+      <article class="markdown-body">
+      <h1 id="_1"><a name="user-content-_1" href="#_1" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>{{ topic.title }}</h1>
+      <blockquote>
+        <p>{{ topic.userName }}</p>
+      </blockquote>
+      <article class="markdown-body">
+        <p>{{topic.article}}</p>
+      </article>
+      {{ each comment }}
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <span>{{ $value.commenterName }}</span> commented at 
+            <span>{{ $value.created_time.toLocaleString().replace("├F10:","").replace("┤","") }}</span>
+            <span class="action">
+              <a id="deleteComment" href = ""><i class="glyphicon glyphicon-remove-circle pull-right"></i></a>
+              <a href=""><i class="glyphicon glyphicon-thumbs-down pull-right"></i></a>
+              <a href=""><i class="glyphicon glyphicon-thumbs-up pull-right"></i></a>
+            </span>
+          </div>
+          <div class="panel-body">
+          {{ $value.comment }}
+        </div>
+        {{ /each }}
+      </div>
+      <hr>
+      <form id="comment_form">
+        <div class="form-group">
+          <input type="hidden" name="topicId" value="{{ topic._id }}">
+          <label for="exampleInputPassword1">添加评论</label>
+          <textarea class="form-control" name="comment" id="" cols="10" rows="10"></textarea>
+        </div>
+        <button type="submit" class="btn btn-success">提交评论</button>
+      </form>
+    </div>
+  </div>
+</section>
+<script src="/node_modules/jquery/dist/jquery.js"></script>
+  <script>
+    $('#comment_form').on('submit', function (e) {
+      e.preventDefault()
+      var formData = $(this).serialize()
+      $.ajax({
+        url: '/topics/comment',
+        type: 'post',
+        data: formData,
+        dataType: 'json',
+        success: function (data) {
+          var err_code = data.err_code
+          if (err_code === 0) {
+            // window.alert('评论成功！')
+            // 服务端重定向针对异步请求无效
+            console.log(formData)
+            window.location.href = '/topics/show?id={{ topic.id }}'
+          } else if (err_code === 1) {
+            window.alert('请登录后评论')
+          } else if (err_code === 500) {
+            window.alert('服务器忙，请稍后重试！')
+          }
+        }
+      })
+    })
+    // $('#deleteComment').click(function() {
+    //   let ifDelete = window.confirm('确定删除该评论吗');
+    //   if (!ifDelete) {
+    //     return false
+    //   }
+    // });
+  </script>
+{{/block}}
